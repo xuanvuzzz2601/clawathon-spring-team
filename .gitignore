@@ -1,0 +1,9 @@
+.greennode.json
+.agentbase/
+.env
+
+__pycache__/
+.venv/
+.claude/
+.claude/*
+.DS_Store

@@ -1,0 +1,16 @@
+services:
+  affiliate-system:
+    build: .
+    container_name: zalopay-affiliate
+    ports:
+      - "5001:5001"
+    volumes:
+      - affiliate-db:/app/instance
+    env_file:
+      - ../.env
+    environment:
+      - APP_BASE_URL=http://localhost:5001
+    restart: unless-stopped
+
+volumes:
+  affiliate-db:

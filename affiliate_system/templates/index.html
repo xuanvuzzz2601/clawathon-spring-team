@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>zalopay Affiliate System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root { --primary: #0068ff; --secondary: #00c2ff; --accent: #ff6b00; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f4f8; }
+    .gradient-bg { background: linear-gradient(135deg, #0068ff 0%, #00c2ff 100%); }
+    .card { background: white; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,104,255,.08); }
+    .nav-item { transition: all .2s; }
+    .nav-item.active { background: rgba(255,255,255,.2); border-radius: 10px; }
+    .nav-item:hover:not(.active) { background: rgba(255,255,255,.1); border-radius: 10px; }
+    .stat-card { border-left: 4px solid var(--primary); }
+    .badge-bronze { background:#cd7f32; } .badge-silver { background:#c0c0c0; }
+    .badge-gold { background:#ffd700; color:#333; } .badge-platinum { background:linear-gradient(135deg,#e5e4e2,#a9a9a9); }
+    .tab-btn { border-bottom: 2px solid transparent; }
+    .tab-btn.active { border-color: var(--primary); color: var(--primary); }
+    .toast { animation: slideIn .3s ease; }
+    @keyframes slideIn { from{transform:translateX(100%);opacity:0} to{transform:translateX(0);opacity:1} }
+    .loading { animation: spin 1s linear infinite; }
+    @keyframes spin { to{transform:rotate(360deg)} }
+    .progress-bar { transition: width .5s ease; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0,104,255,.1); }
+    .metric-up { color: #22c55e; } .metric-down { color: #ef4444; }
+    .agent-badge { font-size:10px; padding:2px 8px; border-radius:999px; font-weight:600; letter-spacing:.5px; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- Sidebar -->
+<div class="flex h-screen overflow-hidden">
+  <aside class="gradient-bg w-64 flex-shrink-0 flex flex-col p-4 text-white overflow-y-auto">
+    <div class="flex items-center gap-3 mb-8 mt-2">
+      <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center">
+        <span class="text-blue-600 font-black text-lg">Z</span>
+      </div>
+      <div>
+        <div class="font-bold text-lg leading-none">zalopay</div>
+        <div class="text-xs opacity-70">Affiliate System</div>
+      </div>
+    </div>
+
+    <nav class="space-y-1 flex-1">
+      <a href="#" onclick="showTab('dashboard')" class="nav-item active flex items-center gap-3 px-3 py-2.5 text-sm font-medium" id="nav-dashboard">
+        <i class="fa fa-chart-pie w-4"></i> Dashboard
+      </a>
+      <a href="#" onclick="showTab('products')" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium" id="nav-products">
+        <i class="fa fa-box w-4"></i> Sản phẩm
+      </a>
+      <a href="#" onclick="showTab('affiliates')" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium" id="nav-affiliates">
+        <i class="fa fa-users w-4"></i> Affiliates
+      </a>
+      <a href="#" onclick="showTab('links')" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium" id="nav-links">
+        <i class="fa fa-link w-4"></i> Affiliate Links
+      </a>
+      <div class="pt-3 pb-1 px-3 text-xs font-semibold opacity-50 uppercase tracking-wider">AI Agents</div>
+      <a href="#" onclick="showTab('media')" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium" id="nav-media">
+        <i class="fa fa-wand-magic-sparkles w-4"></i> Media Generator
+      </a>
+      <a href="#" onclick="showTab('personalization')" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium" id="nav-personalization">
+        <i class="fa fa-user-pen w-4"></i> Personalization
+      </a>
+      <a href="#" onclick="showTab('rewards')" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium" id="nav-rewards">
+        <i class="fa fa-trophy w-4"></i> Rewards
+      </a>
+      <a href="#" onclick="showTab('analytics')" class="nav-item flex items-center gap-3 px-3 py-2.5 text-sm font-medium" id="nav-analytics">
+        <i class="fa fa-chart-line w-4"></i> Analytics
+      </a>
+    </nav>
+
+    <div class="mt-4 p-3 bg-white/10 rounded-xl text-xs">
+      <div class="font-semibold mb-2 flex items-center gap-2">
+        <i class="fa fa-robot"></i> AI Agents Status
+      </div>
+      <div class="space-y-1.5">
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-400"></span> Media Generator</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-400"></span> Personalization</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-400"></span> Link Generator</div>
+        <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-400"></span> Rewards Tracker</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto">
+    <!-- Header -->
+    <header class="bg-white border-b px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+      <div>
+        <h1 class="text-xl font-bold text-gray-800" id="page-title">Dashboard</h1>
+        <p class="text-xs text-gray-400" id="page-subtitle">Tổng quan hệ thống affiliate</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="simulateTraffic()" id="btn-simulate" class="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-100 transition">
+          <i class="fa fa-play-circle"></i> Simulate Traffic
+        </button>
+        <button onclick="refreshAll()" class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm hover:bg-gray-200 transition">
+          <i class="fa fa-sync" id="refresh-icon"></i> Refresh
+        </button>
+        <!-- User info -->
+        <div class="flex items-center gap-2 pl-3 border-l border-gray-200">
+          <div class="w-8 h-8 rounded-full gradient-bg flex items-center justify-center text-white text-xs font-bold" id="user-avatar">?</div>
+          <div class="text-xs">
+            <div class="font-semibold text-gray-700" id="user-display">—</div>
+            <div class="text-gray-400" id="user-role-badge">—</div>
+          </div>
+          <button onclick="doLogout()" class="ml-1 text-gray-400 hover:text-red-500 transition" title="Đăng xuất">
+            <i class="fa fa-sign-out-alt"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Content Area -->
+    <div class="p-6">
+
+      <!-- ─── DASHBOARD TAB ─────────────────────────────────────────────── -->
+      <div id="tab-dashboard">
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="card stat-card p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-gray-500 uppercase">Sản phẩm</span>
+              <i class="fa fa-box text-blue-400"></i>
+            </div>
+            <div class="text-2xl font-bold text-gray-800" id="stat-products">—</div>
+            <div class="text-xs text-gray-400 mt-1">Active products</div>
+          </div>
+          <div class="card stat-card p-5" style="border-color:#22c55e">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-gray-500 uppercase">Affiliates</span>
+              <i class="fa fa-users text-green-400"></i>
+            </div>
+            <div class="text-2xl font-bold text-gray-800" id="stat-affiliates">—</div>
+            <div class="text-xs text-gray-400 mt-1">Active members</div>
+          </div>
+          <div class="card stat-card p-5" style="border-color:#f59e0b">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-gray-500 uppercase">Total Clicks</span>
+              <i class="fa fa-mouse-pointer text-yellow-400"></i>
+            </div>
+            <div class="text-2xl font-bold text-gray-800" id="stat-clicks">—</div>
+            <div class="text-xs text-gray-400 mt-1">All time clicks</div>
+          </div>
+          <div class="card stat-card p-5" style="border-color:#8b5cf6">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-gray-500 uppercase">Conversion Rate</span>
+              <i class="fa fa-percent text-purple-400"></i>
+            </div>
+            <div class="text-2xl font-bold text-gray-800" id="stat-cvr">—</div>
+            <div class="text-xs text-gray-400 mt-1">Clicks to sales</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="card p-5">
+            <div class="text-xs font-medium text-gray-500 uppercase mb-1">Total Conversions</div>
+            <div class="text-2xl font-bold text-gray-800" id="stat-conversions">—</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-xs font-medium text-gray-500 uppercase mb-1">Revenue Generated</div>
+            <div class="text-2xl font-bold text-green-600" id="stat-revenue">—</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-xs font-medium text-gray-500 uppercase mb-1">Pending Rewards</div>
+            <div class="text-2xl font-bold text-orange-500" id="stat-rewards">—</div>
+          </div>
+          <div class="card p-5">
+            <div class="text-xs font-medium text-gray-500 uppercase mb-1">Media Generated</div>
+            <div class="text-2xl font-bold text-gray-800" id="stat-media">—</div>
+          </div>
+        </div>
+
+        <!-- Charts + Leaderboard -->
+        <div class="grid grid-cols-3 gap-6 mb-6">
+          <div class="card p-5 col-span-2">
+            <h3 class="font-semibold text-gray-700 mb-4">Clicks & Conversions (30 ngày)</h3>
+            <canvas id="chart-clicks" height="80"></canvas>
+          </div>
+          <div class="card p-5">
+            <h3 class="font-semibold text-gray-700 mb-4">Revenue by Product</h3>
+            <canvas id="chart-revenue" height="160"></canvas>
+          </div>
+        </div>
+
+        <!-- Top Affiliates & Products -->
+        <div class="grid grid-cols-2 gap-6">
+          <div class="card p-5">
+            <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <i class="fa fa-trophy text-yellow-500"></i> Top Affiliates
+            </h3>
+            <div id="top-affiliates-list" class="space-y-3"></div>
+          </div>
+          <div class="card p-5">
+            <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+              <i class="fa fa-fire text-orange-500"></i> Top Products
+            </h3>
+            <div id="top-products-list" class="space-y-3"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── PRODUCTS TAB ──────────────────────────────────────────────── -->
+      <div id="tab-products" class="hidden">
+        <div class="flex items-center justify-between mb-6">
+          <div></div>
+          <button onclick="openModal('modal-add-product')" class="flex items-center gap-2 px-4 py-2 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90 transition">
+            <i class="fa fa-plus"></i> Thêm sản phẩm
+          </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="products-grid"></div>
+      </div>
+
+      <!-- ─── AFFILIATES TAB ────────────────────────────────────────────── -->
+      <div id="tab-affiliates" class="hidden">
+        <div class="flex items-center justify-between mb-6">
+          <div class="flex gap-2">
+            <select id="filter-demographics" onchange="loadAffiliates()" class="border rounded-lg px-3 py-2 text-sm">
+              <option value="">Tất cả demographics</option>
+              <option value="gen_z">Gen Z</option>
+              <option value="millennial">Millennial</option>
+              <option value="professional">Professional</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+          <button onclick="openModal('modal-add-affiliate')" class="flex items-center gap-2 px-4 py-2 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90">
+            <i class="fa fa-user-plus"></i> Thêm Affiliate
+          </button>
+        </div>
+        <div id="affiliates-table-wrap">
+          <div class="card overflow-hidden">
+            <table class="w-full text-sm">
+              <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+                <tr>
+                  <th class="px-4 py-3 text-left">Affiliate</th>
+                  <th class="px-4 py-3 text-left">Platform</th>
+                  <th class="px-4 py-3 text-left">Demographics</th>
+                  <th class="px-4 py-3 text-right">Clicks</th>
+                  <th class="px-4 py-3 text-right">Conversions</th>
+                  <th class="px-4 py-3 text-right">Earnings</th>
+                  <th class="px-4 py-3 text-center">Tier</th>
+                  <th class="px-4 py-3 text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="affiliates-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── LINKS TAB ─────────────────────────────────────────────────── -->
+      <div id="tab-links" class="hidden">
+        <div class="grid grid-cols-3 gap-6">
+          <div class="col-span-1">
+            <div class="card p-5">
+              <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-600 text-xs flex items-center justify-center font-bold">3</span>
+                Agent 3: Link Generator
+              </h3>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Affiliate</label>
+                  <select id="link-affiliate" class="w-full border rounded-lg px-3 py-2 text-sm"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Sản phẩm</label>
+                  <select id="link-product" class="w-full border rounded-lg px-3 py-2 text-sm"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Campaign</label>
+                  <select id="link-campaign" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="default">Default</option>
+                    <option value="summer_sale">Summer Sale</option>
+                    <option value="new_user">New User</option>
+                    <option value="loyalty">Loyalty</option>
+                    <option value="flash_sale">Flash Sale</option>
+                  </select>
+                </div>
+                <button onclick="generateLink()" class="w-full py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2">
+                  <i class="fa fa-link"></i> Generate Link
+                </button>
+                <button onclick="openModal('modal-bulk-links')" class="w-full py-2.5 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 flex items-center justify-center gap-2">
+                  <i class="fa fa-layer-group"></i> Bulk Generate
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div class="card overflow-hidden">
+              <div class="p-4 border-b flex items-center justify-between">
+                <h3 class="font-semibold text-gray-700">Generated Links</h3>
+                <div class="flex gap-2">
+                  <select id="filter-link-affiliate" onchange="loadLinks()" class="border rounded-lg px-3 py-2 text-xs">
+                    <option value="">Tất cả affiliates</option>
+                  </select>
+                </div>
+              </div>
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+                  <tr>
+                    <th class="px-4 py-3 text-left">Code</th>
+                    <th class="px-4 py-3 text-left">Affiliate / Product</th>
+                    <th class="px-4 py-3 text-left">Campaign</th>
+                    <th class="px-4 py-3 text-right">Clicks</th>
+                    <th class="px-4 py-3 text-right">Conv.</th>
+                    <th class="px-4 py-3 text-right">CVR%</th>
+                    <th class="px-4 py-3 text-center">Copy</th>
+                  </tr>
+                </thead>
+                <tbody id="links-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── MEDIA TAB ─────────────────────────────────────────────────── -->
+      <div id="tab-media" class="hidden">
+        <div class="grid grid-cols-3 gap-6">
+          <div class="col-span-1 space-y-4">
+            <div class="card p-5">
+              <h3 class="font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 text-xs flex items-center justify-center font-bold">1</span>
+                Agent 1: Media Generator
+              </h3>
+              <p class="text-xs text-gray-400 mb-4">Tạo nội dung marketing bằng AI</p>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Sản phẩm</label>
+                  <select id="media-product" class="w-full border rounded-lg px-3 py-2 text-sm"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Platform</label>
+                  <select id="media-platform" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="instagram">Instagram</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="linkedin">LinkedIn</option>
+                    <option value="twitter">Twitter/X</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Content Type</label>
+                  <select id="media-type" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="post">Post</option>
+                    <option value="story">Story</option>
+                    <option value="carousel">Carousel</option>
+                    <option value="video_script">Video Script</option>
+                    <option value="banner">Banner</option>
+                  </select>
+                </div>
+                <button onclick="generateMedia(false)" class="w-full py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2">
+                  <i class="fa fa-wand-magic-sparkles"></i> Generate Content
+                </button>
+                <button onclick="generateABTest()" class="w-full py-2.5 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 flex items-center justify-center gap-2">
+                  <i class="fa fa-flask"></i> A/B Test (3 variants)
+                </button>
+              </div>
+            </div>
+
+            <!-- Image Generator card -->
+            <div class="card p-5">
+              <h3 class="font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-pink-100 text-pink-600 text-xs flex items-center justify-center font-bold">
+                  <i class="fa fa-image" style="font-size:9px"></i>
+                </span>
+                Image Generator
+              </h3>
+              <p class="text-xs text-gray-400 mb-3">Tạo ảnh từ mô tả bằng gpt-image-1</p>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Sản phẩm (tuỳ chọn)</label>
+                  <select id="img-product" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="">— Không gắn sản phẩm —</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Mô tả ảnh muốn tạo</label>
+                  <textarea id="img-description" rows="3" placeholder="VD: Ảnh quảng cáo ví điện tử hiện đại, tone xanh dương, phong cách minimalist, người dùng thanh toán bằng điện thoại..."
+                    class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Kích thước</label>
+                  <select id="img-size" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="1024x1024">1024×1024 (vuông)</option>
+                    <option value="1536x1024">1536×1024 (ngang)</option>
+                    <option value="1024x1536">1024×1536 (dọc)</option>
+                  </select>
+                </div>
+                <button onclick="generateImage()" class="w-full py-2.5 bg-pink-500 text-white rounded-lg text-sm font-medium hover:bg-pink-600 flex items-center justify-center gap-2">
+                  <i class="fa fa-image"></i> Generate Image
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-span-2">
+            <div id="media-loading" class="hidden flex items-center justify-center py-12">
+              <div class="text-center">
+                <i class="fa fa-robot text-4xl text-blue-400 mb-3 loading"></i>
+                <p class="text-gray-500">AI đang tạo nội dung...</p>
+              </div>
+            </div>
+            <div id="img-loading" class="hidden flex items-center justify-center py-12">
+              <div class="text-center">
+                <i class="fa fa-image text-4xl text-pink-400 mb-3 loading"></i>
+                <p class="text-gray-500">gpt-image-1 đang tạo ảnh...</p>
+                <p class="text-xs text-gray-400 mt-1">Có thể mất 15-30 giây</p>
+              </div>
+            </div>
+            <div id="img-result" class="hidden mb-4"></div>
+            <div id="media-result" class="hidden"></div>
+            <div class="card overflow-hidden mt-4">
+              <div class="p-4 border-b"><h3 class="font-semibold text-gray-700">Content Library</h3></div>
+              <div id="media-grid" class="p-4 grid grid-cols-1 gap-3 max-h-96 overflow-y-auto"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── PERSONALIZATION TAB ───────────────────────────────────────── -->
+      <div id="tab-personalization" class="hidden">
+        <div class="grid grid-cols-3 gap-6">
+          <div class="col-span-1">
+            <div class="card p-5">
+              <h3 class="font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-green-100 text-green-600 text-xs flex items-center justify-center font-bold">2</span>
+                Agent 2: Personalization
+              </h3>
+              <p class="text-xs text-gray-400 mb-4">Tùy chỉnh nội dung theo profile affiliate</p>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Sản phẩm</label>
+                  <select id="persona-product" class="w-full border rounded-lg px-3 py-2 text-sm"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Affiliate (target)</label>
+                  <select id="persona-affiliate" class="w-full border rounded-lg px-3 py-2 text-sm"></select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Platform</label>
+                  <select id="persona-platform" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="instagram">Instagram</option>
+                    <option value="facebook">Facebook</option>
+                    <option value="tiktok">TikTok</option>
+                    <option value="linkedin">LinkedIn</option>
+                  </select>
+                </div>
+                <button onclick="generatePersonalized()" class="w-full py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2">
+                  <i class="fa fa-user-pen"></i> Personalize Content
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2">
+            <div id="persona-loading" class="hidden flex items-center justify-center py-12">
+              <div class="text-center">
+                <i class="fa fa-user-pen text-4xl text-green-400 mb-3 loading"></i>
+                <p class="text-gray-500">AI đang cá nhân hóa nội dung...</p>
+              </div>
+            </div>
+            <div id="persona-result" class="hidden"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── REWARDS TAB ───────────────────────────────────────────────── -->
+      <div id="tab-rewards" class="hidden">
+        <div class="grid grid-cols-3 gap-6">
+          <div class="col-span-1 space-y-4">
+            <div class="card p-5">
+              <h3 class="font-semibold text-gray-700 mb-1 flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-yellow-100 text-yellow-600 text-xs flex items-center justify-center font-bold">4</span>
+                Agent 4: Rewards Tracker
+              </h3>
+              <p class="text-xs text-gray-400 mb-4">Tính toán và quản lý phần thưởng</p>
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-600 mb-1">Affiliate</label>
+                  <select id="reward-affiliate" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="">Tất cả affiliates</option>
+                  </select>
+                </div>
+                <button onclick="calculateRewards()" class="w-full py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2">
+                  <i class="fa fa-calculator"></i> Calculate Rewards
+                </button>
+                <button onclick="generateReport()" class="w-full py-2.5 bg-yellow-100 text-yellow-700 rounded-lg text-sm font-medium hover:bg-yellow-200 flex items-center justify-center gap-2">
+                  <i class="fa fa-file-alt"></i> AI Performance Report
+                </button>
+              </div>
+            </div>
+            <div class="card p-5" id="rewards-summary">
+              <h4 class="font-semibold text-gray-700 mb-3">Commission Tiers</h4>
+              <div class="space-y-2 text-sm">
+                <div class="flex items-center justify-between p-2 rounded-lg bg-gray-50">
+                  <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full badge-bronze inline-block"></span>Bronze</span>
+                  <span class="text-gray-500">0-49 conv · 1x</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-gray-50">
+                  <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full badge-silver inline-block"></span>Silver</span>
+                  <span class="text-gray-500">50-149 conv · 1.25x</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-gray-50">
+                  <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full badge-gold inline-block"></span>Gold</span>
+                  <span class="text-gray-500">150-499 conv · 1.5x</span>
+                </div>
+                <div class="flex items-center justify-between p-2 rounded-lg bg-gray-50">
+                  <span class="flex items-center gap-2"><span class="w-3 h-3 rounded-full" style="background:linear-gradient(135deg,#e5e4e2,#a9a9a9)"></span>Platinum</span>
+                  <span class="text-gray-500">500+ conv · 2x</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-span-2 space-y-4">
+            <div id="rewards-result" class="hidden"></div>
+            <div class="card overflow-hidden">
+              <div class="p-4 border-b"><h3 class="font-semibold text-gray-700">Rewards History</h3></div>
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+                  <tr>
+                    <th class="px-4 py-3 text-left">Affiliate</th>
+                    <th class="px-4 py-3 text-right">Amount</th>
+                    <th class="px-4 py-3 text-center">Type</th>
+                    <th class="px-4 py-3 text-center">Status</th>
+                    <th class="px-4 py-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="rewards-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── ANALYTICS TAB ─────────────────────────────────────────────── -->
+      <div id="tab-analytics" class="hidden">
+        <div class="grid grid-cols-2 gap-6 mb-6">
+          <div class="card p-5">
+            <h3 class="font-semibold text-gray-700 mb-4">Clicks & Conversions Trend</h3>
+            <canvas id="chart-analytics-trend" height="100"></canvas>
+          </div>
+          <div class="card p-5">
+            <h3 class="font-semibold text-gray-700 mb-4">Revenue by Product</h3>
+            <canvas id="chart-analytics-revenue" height="100"></canvas>
+          </div>
+        </div>
+        <div class="card p-5">
+          <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+            <i class="fa fa-medal text-yellow-500"></i> Leaderboard
+          </h3>
+          <div id="leaderboard-table"></div>
+        </div>
+      </div>
+
+    </div><!-- end content area -->
+  </main>
+</div>
+
+<!-- ─── MODALS ────────────────────────────────────────────────────────────── -->
+
+<!-- Add Product Modal -->
+<div id="modal-add-product" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="card w-full max-w-md p-6 mx-4">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="font-bold text-gray-800 text-lg">Thêm sản phẩm mới</h3>
+      <button onclick="closeModal('modal-add-product')" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="space-y-3">
+      <input id="p-name" type="text" placeholder="Tên sản phẩm *" class="w-full border rounded-lg px-3 py-2 text-sm">
+      <textarea id="p-desc" placeholder="Mô tả sản phẩm" class="w-full border rounded-lg px-3 py-2 text-sm h-20 resize-none"></textarea>
+      <div class="grid grid-cols-2 gap-3">
+        <input id="p-price" type="number" placeholder="Giá (VND) *" class="border rounded-lg px-3 py-2 text-sm">
+        <input id="p-commission" type="number" placeholder="Commission % (10)" class="border rounded-lg px-3 py-2 text-sm">
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <select id="p-category" class="border rounded-lg px-3 py-2 text-sm">
+          <option value="fintech">Fintech</option>
+          <option value="business">Business</option>
+          <option value="investment">Investment</option>
+          <option value="insurance">Insurance</option>
+          <option value="merchant">Merchant</option>
+          <option value="general">General</option>
+        </select>
+        <input id="p-image" type="text" placeholder="Image URL" class="border rounded-lg px-3 py-2 text-sm">
+      </div>
+    </div>
+    <div class="flex gap-3 mt-5">
+      <button onclick="closeModal('modal-add-product')" class="flex-1 py-2.5 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Hủy</button>
+      <button onclick="saveProduct()" class="flex-1 py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90">Lưu sản phẩm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Affiliate Modal -->
+<div id="modal-add-affiliate" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="card w-full max-w-md p-6 mx-4">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="font-bold text-gray-800 text-lg">Thêm Affiliate mới</h3>
+      <button onclick="closeModal('modal-add-affiliate')" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="space-y-3">
+      <input id="a-name" type="text" placeholder="Họ tên *" class="w-full border rounded-lg px-3 py-2 text-sm">
+      <input id="a-email" type="email" placeholder="Email *" class="w-full border rounded-lg px-3 py-2 text-sm">
+      <input id="a-username" type="text" placeholder="Username *" class="w-full border rounded-lg px-3 py-2 text-sm">
+      <div class="grid grid-cols-2 gap-3">
+        <select id="a-demographics" class="border rounded-lg px-3 py-2 text-sm">
+          <option value="general">General</option>
+          <option value="gen_z">Gen Z</option>
+          <option value="millennial">Millennial</option>
+          <option value="professional">Professional</option>
+        </select>
+        <select id="a-platform" class="border rounded-lg px-3 py-2 text-sm">
+          <option value="instagram">Instagram</option>
+          <option value="facebook">Facebook</option>
+          <option value="tiktok">TikTok</option>
+          <option value="linkedin">LinkedIn</option>
+          <option value="twitter">Twitter/X</option>
+          <option value="youtube">YouTube</option>
+        </select>
+      </div>
+      <input id="a-interests" type="text" placeholder="Interests (fintech,tech,lifestyle)" class="w-full border rounded-lg px-3 py-2 text-sm">
+    </div>
+    <div class="flex gap-3 mt-5">
+      <button onclick="closeModal('modal-add-affiliate')" class="flex-1 py-2.5 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Hủy</button>
+      <button onclick="saveAffiliate()" class="flex-1 py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90">Lưu affiliate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Links Modal -->
+<div id="modal-bulk-links" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+  <div class="card w-full max-w-md p-6 mx-4">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="font-bold text-gray-800 text-lg">Bulk Generate Links</h3>
+      <button onclick="closeModal('modal-bulk-links')" class="text-gray-400 hover:text-gray-600"><i class="fa fa-times"></i></button>
+    </div>
+    <div class="space-y-3">
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Affiliate</label>
+        <select id="bulk-affiliate" class="w-full border rounded-lg px-3 py-2 text-sm"></select>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Chọn sản phẩm</label>
+        <div id="bulk-products-check" class="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3"></div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-gray-600 mb-1">Campaign</label>
+        <select id="bulk-campaign" class="w-full border rounded-lg px-3 py-2 text-sm">
+          <option value="default">Default</option>
+          <option value="summer_sale">Summer Sale</option>
+          <option value="new_user">New User</option>
+          <option value="flash_sale">Flash Sale</option>
+        </select>
+      </div>
+    </div>
+    <div class="flex gap-3 mt-5">
+      <button onclick="closeModal('modal-bulk-links')" class="flex-1 py-2.5 border rounded-lg text-sm text-gray-600 hover:bg-gray-50">Hủy</button>
+      <button onclick="bulkGenerateLinks()" class="flex-1 py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90">Generate All</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+<script>
+const API = '';
+let chartsInitialized = {};
+
+// ─── Utils ────────────────────────────────────────────────────────────────────
+function fmt(n) { return Number(n || 0).toLocaleString('vi-VN'); }
+function fmtVND(n) { return fmt(n) + ' ₫'; }
+function fmtPct(n) { return Number(n || 0).toFixed(2) + '%'; }
+
+function showToast(msg, type = 'success') {
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  const colors = { success:'bg-green-500', error:'bg-red-500', info:'bg-blue-500', warning:'bg-yellow-500' };
+  t.className = `toast px-4 py-3 rounded-xl text-white text-sm font-medium shadow-lg max-w-sm ${colors[type] || colors.info}`;
+  t.innerHTML = `<i class="fa fa-${type === 'success' ? 'check' : type === 'error' ? 'times' : 'info'}-circle mr-2"></i>${msg}`;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+async function api(path, opts = {}) {
+  try {
+    const r = await fetch(API + path, {
+      headers: { 'Content-Type': 'application/json' },
+      ...opts,
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'API error');
+    return data;
+  } catch (e) {
+    showToast(e.message, 'error');
+    throw e;
+  }
+}
+
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+function showLoading(id) { document.getElementById(id).classList.remove('hidden'); }
+function hideLoading(id) { document.getElementById(id).classList.add('hidden'); }
+
+function tierBadge(tier) {
+  const map = {
+    bronze: 'badge-bronze text-white',
+    silver: 'badge-silver text-gray-700',
+    gold: 'badge-gold',
+    platinum: 'badge-platinum text-gray-700',
+  };
+  return `<span class="agent-badge ${map[tier] || map.bronze} rounded px-2">${tier}</span>`;
+}
+
+function platformIcon(p) {
+  const icons = { instagram:'fa-instagram', facebook:'fa-facebook', tiktok:'fa-tiktok', linkedin:'fa-linkedin', twitter:'fa-twitter', youtube:'fa-youtube' };
+  return `<i class="fab ${icons[p] || 'fa-globe'} text-gray-400"></i>`;
+}
+
+// ─── Navigation ───────────────────────────────────────────────────────────────
+const tabs = ['dashboard','products','affiliates','links','media','personalization','rewards','analytics'];
+const titles = {
+  dashboard: ['Dashboard', 'Tổng quan hệ thống affiliate'],
+  products: ['Sản phẩm', 'Quản lý danh mục sản phẩm'],
+  affiliates: ['Affiliates', 'Quản lý thành viên affiliate'],
+  links: ['Affiliate Links', 'Agent 3: Tạo và quản lý tracking links'],
+  media: ['Media Generator', 'Agent 1: AI tạo nội dung marketing'],
+  personalization: ['Personalization', 'Agent 2: Cá nhân hóa nội dung'],
+  rewards: ['Rewards & Tracking', 'Agent 4: Theo dõi và tính thưởng'],
+  analytics: ['Analytics', 'Báo cáo và phân tích chi tiết'],
+};
+
+function showTab(tab) {
+  tabs.forEach(t => {
+    document.getElementById(`tab-${t}`)?.classList.add('hidden');
+    document.getElementById(`nav-${t}`)?.classList.remove('active');
+  });
+  document.getElementById(`tab-${tab}`)?.classList.remove('hidden');
+  document.getElementById(`nav-${tab}`)?.classList.add('active');
+  document.getElementById('page-title').textContent = titles[tab][0];
+  document.getElementById('page-subtitle').textContent = titles[tab][1];
+
+  const loaders = {
+    dashboard: loadDashboard,
+    products: loadProducts,
+    affiliates: loadAffiliates,
+    links: () => { loadLinks(); populateLinkSelects(); },
+    media: () => { loadMedia(); populateMediaSelects(); },
+    personalization: populatePersonaSelects,
+    rewards: () => { loadRewards(); populateRewardSelects(); },
+    analytics: loadAnalytics,
+  };
+  loaders[tab]?.();
+}
+
+function refreshAll() {
+  const icon = document.getElementById('refresh-icon');
+  icon.classList.add('loading');
+  const tab = tabs.find(t => !document.getElementById(`tab-${t}`)?.classList.contains('hidden')) || 'dashboard';
+  showTab(tab);
+  setTimeout(() => icon.classList.remove('loading'), 800);
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const data = await api('/api/dashboard');
+    const s = data.stats;
+    document.getElementById('stat-products').textContent = s.total_products;
+    document.getElementById('stat-affiliates').textContent = s.total_affiliates;
+    document.getElementById('stat-clicks').textContent = fmt(s.total_clicks);
+    document.getElementById('stat-cvr').textContent = fmtPct(s.conversion_rate);
+    document.getElementById('stat-conversions').textContent = fmt(s.total_conversions);
+    document.getElementById('stat-revenue').textContent = fmtVND(s.total_revenue);
+    document.getElementById('stat-rewards').textContent = fmtVND(s.pending_rewards);
+    document.getElementById('stat-media').textContent = s.total_media;
+
+    // Top affiliates
+    const af = document.getElementById('top-affiliates-list');
+    af.innerHTML = data.top_affiliates.map((a, i) => `
+      <div class="flex items-center gap-3">
+        <span class="w-6 h-6 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center">${i+1}</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-gray-800 truncate">${a.name}</div>
+          <div class="text-xs text-gray-400">${fmt(a.total_conversions)} conversions</div>
+        </div>
+        <span class="text-sm font-semibold text-green-600">${fmtVND(a.total_earnings)}</span>
+      </div>
+    `).join('');
+
+    // Top products
+    const tp = document.getElementById('top-products-list');
+    tp.innerHTML = data.top_products.map((p, i) => `
+      <div class="flex items-center gap-3">
+        <span class="w-6 h-6 rounded-full bg-orange-100 text-orange-700 text-xs font-bold flex items-center justify-center">${i+1}</span>
+        <div class="flex-1 min-w-0">
+          <div class="text-sm font-medium text-gray-800 truncate">${p.name}</div>
+          <div class="text-xs text-gray-400">${p.total_conversions || 0} conversions</div>
+        </div>
+        <span class="text-xs text-gray-500">${p.commission_rate}%</span>
+      </div>
+    `).join('');
+
+    renderDashboardCharts(data);
+  } catch {}
+}
+
+let chartInstances = {};
+function destroyChart(id) { chartInstances[id]?.destroy(); delete chartInstances[id]; }
+
+async function renderDashboardCharts(data) {
+  try {
+    const trend = await api('/api/analytics/clicks-over-time');
+    const labels = trend.map(d => d.date.slice(5));
+    const clicks = trend.map(d => d.clicks);
+    const convs = trend.map(d => d.conversions);
+
+    destroyChart('chart-clicks');
+    const ctx1 = document.getElementById('chart-clicks').getContext('2d');
+    chartInstances['chart-clicks'] = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Clicks', data: clicks, borderColor: '#0068ff', backgroundColor: 'rgba(0,104,255,.08)', tension: .4, fill: true },
+          { label: 'Conversions', data: convs, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,.08)', tension: .4, fill: true },
+        ],
+      },
+      options: { plugins: { legend: { labels: { font: { size: 11 } } } }, scales: { y: { beginAtZero: true } } },
+    });
+
+    const rev = await api('/api/analytics/revenue-by-product');
+    destroyChart('chart-revenue');
+    const ctx2 = document.getElementById('chart-revenue').getContext('2d');
+    chartInstances['chart-revenue'] = new Chart(ctx2, {
+      type: 'doughnut',
+      data: {
+        labels: rev.map(r => r.product.slice(0, 15)),
+        datasets: [{ data: rev.map(r => r.revenue), backgroundColor: ['#0068ff','#00c2ff','#22c55e','#f59e0b','#8b5cf6'] }],
+      },
+      options: { plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } },
+    });
+  } catch {}
+}
+
+// ─── Products ─────────────────────────────────────────────────────────────────
+async function loadProducts() {
+  const products = await api('/api/products');
+  const grid = document.getElementById('products-grid');
+  const isAdmin = currentUser?.role === 'admin';
+  grid.innerHTML = products.map(p => `
+    <div class="card overflow-hidden hover:shadow-lg transition">
+      <img src="${p.image_url || 'https://picsum.photos/seed/' + p.id + '/400/200'}" alt="${p.name}" class="w-full h-40 object-cover">
+      <div class="p-4">
+        <div class="flex items-start justify-between mb-2">
+          <h3 class="font-semibold text-gray-800 text-sm leading-tight">${p.name}</h3>
+          <span class="agent-badge bg-blue-100 text-blue-700 ml-2 flex-shrink-0">${p.category}</span>
+        </div>
+        <p class="text-xs text-gray-500 mb-3 line-clamp-2">${p.description || ''}</p>
+        <div class="flex items-center justify-between">
+          <span class="text-base font-bold text-blue-600">${fmtVND(p.price)}</span>
+          <span class="text-xs text-green-600 font-medium">${p.commission_rate}% hoa hồng</span>
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button onclick="quickGenMedia(${p.id})" class="flex-1 py-1.5 bg-purple-50 text-purple-600 rounded-lg text-xs font-medium hover:bg-purple-100">
+            <i class="fa fa-wand-magic-sparkles mr-1"></i>Gen Media
+          </button>
+          ${isAdmin ? `<button onclick="deleteProduct(${p.id})" class="py-1.5 px-3 bg-red-50 text-red-500 rounded-lg text-xs hover:bg-red-100"><i class="fa fa-trash"></i></button>` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  // Hide "Thêm sản phẩm" button for affiliates
+  const addBtn = document.querySelector('[onclick="openModal(\'modal-add-product\')"]');
+  if (addBtn) addBtn.style.display = isAdmin ? '' : 'none';
+}
+
+async function saveProduct() {
+  const data = {
+    name: document.getElementById('p-name').value.trim(),
+    description: document.getElementById('p-desc').value.trim(),
+    price: document.getElementById('p-price').value,
+    commission_rate: document.getElementById('p-commission').value || 10,
+    category: document.getElementById('p-category').value,
+    image_url: document.getElementById('p-image').value.trim(),
+  };
+  if (!data.name || !data.price) return showToast('Tên và giá là bắt buộc', 'warning');
+  await api('/api/products', { method: 'POST', body: JSON.stringify(data) });
+  showToast('Đã thêm sản phẩm thành công!');
+  closeModal('modal-add-product');
+  loadProducts();
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Xóa sản phẩm này?')) return;
+  await api(`/api/products/${id}`, { method: 'DELETE' });
+  showToast('Đã xóa sản phẩm');
+  loadProducts();
+}
+
+async function quickGenMedia(productId) {
+  showTab('media');
+  document.getElementById('media-product').value = productId;
+}
+
+// ─── Affiliates ───────────────────────────────────────────────────────────────
+async function loadAffiliates() {
+  const affiliates = await api('/api/affiliates');
+  const filter = document.getElementById('filter-demographics').value;
+  const filtered = filter ? affiliates.filter(a => a.demographics === filter) : affiliates;
+
+  const tbody = document.getElementById('affiliates-tbody');
+  tbody.innerHTML = filtered.map(a => `
+    <tr class="border-t hover:bg-gray-50 transition">
+      <td class="px-4 py-3">
+        <div class="font-medium text-gray-800 text-sm">${a.name}</div>
+        <div class="text-xs text-gray-400">@${a.username} · ${a.email}</div>
+      </td>
+      <td class="px-4 py-3">${platformIcon(a.platform)} <span class="text-xs text-gray-600 ml-1 capitalize">${a.platform}</span></td>
+      <td class="px-4 py-3"><span class="agent-badge bg-gray-100 text-gray-600">${a.demographics}</span></td>
+      <td class="px-4 py-3 text-right text-sm">${fmt(a.total_clicks)}</td>
+      <td class="px-4 py-3 text-right text-sm font-medium">${fmt(a.total_conversions)}</td>
+      <td class="px-4 py-3 text-right text-sm font-semibold text-green-600">${fmtVND(a.total_earnings)}</td>
+      <td class="px-4 py-3 text-center">${tierBadge(a.tier)}</td>
+      <td class="px-4 py-3 text-center">
+        <button onclick="viewAffiliate(${a.id})" class="text-blue-500 hover:text-blue-700 text-xs px-2 py-1 rounded hover:bg-blue-50">
+          <i class="fa fa-eye"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function saveAffiliate() {
+  const data = {
+    name: document.getElementById('a-name').value.trim(),
+    email: document.getElementById('a-email').value.trim(),
+    username: document.getElementById('a-username').value.trim(),
+    demographics: document.getElementById('a-demographics').value,
+    platform: document.getElementById('a-platform').value,
+    interests: document.getElementById('a-interests').value.trim(),
+  };
+  if (!data.name || !data.email || !data.username) return showToast('Điền đầy đủ thông tin bắt buộc', 'warning');
+  await api('/api/affiliates', { method: 'POST', body: JSON.stringify(data) });
+  showToast('Đã thêm affiliate thành công!');
+  closeModal('modal-add-affiliate');
+  loadAffiliates();
+}
+
+async function viewAffiliate(id) {
+  const data = await api(`/api/affiliates/${id}`);
+  const m = data.metrics || {};
+  showToast(`${data.name}: ${fmt(m.total_conversions || 0)} conversions, CVR: ${fmtPct(m.conversion_rate || 0)}`, 'info');
+}
+
+// ─── Links ────────────────────────────────────────────────────────────────────
+async function populateLinkSelects() {
+  const [affiliates, products] = await Promise.all([api('/api/affiliates'), api('/api/products')]);
+  const selects = ['link-affiliate', 'filter-link-affiliate', 'bulk-affiliate'];
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const hasAll = id !== 'link-affiliate';
+    el.innerHTML = (hasAll ? '<option value="">Tất cả</option>' : '') +
+      affiliates.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+  });
+
+  ['link-product'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  });
+
+  const bulkCheck = document.getElementById('bulk-products-check');
+  if (bulkCheck) {
+    bulkCheck.innerHTML = products.map(p =>
+      `<label class="flex items-center gap-2 text-sm cursor-pointer">
+        <input type="checkbox" value="${p.id}" class="bulk-prod-check rounded">
+        <span>${p.name}</span>
+      </label>`
+    ).join('');
+  }
+}
+
+async function loadLinks() {
+  const filter = document.getElementById('filter-link-affiliate')?.value;
+  const url = filter ? `/api/links?affiliate_id=${filter}` : '/api/links';
+  const links = await api(url);
+  const tbody = document.getElementById('links-tbody');
+  tbody.innerHTML = links.map(l => `
+    <tr class="border-t hover:bg-gray-50 transition text-sm">
+      <td class="px-4 py-3">
+        <code class="bg-gray-100 px-2 py-0.5 rounded text-xs font-mono">${l.tracking_code}</code>
+      </td>
+      <td class="px-4 py-3">
+        <div class="font-medium text-gray-800">${l.affiliate_name || '—'}</div>
+        <div class="text-xs text-gray-400">${l.product_name || '—'}</div>
+      </td>
+      <td class="px-4 py-3"><span class="agent-badge bg-blue-50 text-blue-600">${l.campaign}</span></td>
+      <td class="px-4 py-3 text-right">${fmt(l.clicks)}</td>
+      <td class="px-4 py-3 text-right font-medium">${fmt(l.conversions)}</td>
+      <td class="px-4 py-3 text-right ${l.conversion_rate >= 10 ? 'text-green-600' : 'text-gray-600'}">${fmtPct(l.conversion_rate)}</td>
+      <td class="px-4 py-3 text-center">
+        <button onclick="copyLink('${l.tracking_code}')" class="text-blue-500 hover:text-blue-700 text-xs px-2 py-1 rounded hover:bg-blue-50">
+          <i class="fa fa-copy"></i>
+        </button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-gray-400 text-sm">Chưa có link nào</td></tr>';
+}
+
+async function generateLink() {
+  const affiliate_id = document.getElementById('link-affiliate').value;
+  const product_id = document.getElementById('link-product').value;
+  const campaign = document.getElementById('link-campaign').value;
+  if (!affiliate_id || !product_id) return showToast('Chọn affiliate và sản phẩm', 'warning');
+
+  const result = await api('/api/links/generate', {
+    method: 'POST',
+    body: JSON.stringify({ affiliate_id: +affiliate_id, product_id: +product_id, campaign }),
+  });
+  showToast(`Link tạo thành công! Code: ${result.tracking_code}`);
+  copyToClipboard(result.full_url);
+  loadLinks();
+}
+
+async function bulkGenerateLinks() {
+  const affiliate_id = document.getElementById('bulk-affiliate').value;
+  const campaign = document.getElementById('bulk-campaign').value;
+  const checked = [...document.querySelectorAll('.bulk-prod-check:checked')].map(el => +el.value);
+  if (!affiliate_id || !checked.length) return showToast('Chọn affiliate và ít nhất 1 sản phẩm', 'warning');
+
+  const result = await api('/api/links/bulk-generate', {
+    method: 'POST',
+    body: JSON.stringify({ affiliate_id: +affiliate_id, product_ids: checked, campaign }),
+  });
+  showToast(`Đã tạo ${result.created} affiliate links!`);
+  closeModal('modal-bulk-links');
+  loadLinks();
+}
+
+function copyLink(code) {
+  const url = `${window.location.origin}/track/${code}`;
+  copyToClipboard(url);
+  showToast('Đã copy link!');
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard?.writeText(text).catch(() => {});
+}
+
+// ─── Image Generation ────────────────────────────────────────────────────────
+async function generateImage() {
+  const description = document.getElementById('img-description').value.trim();
+  if (!description) return showToast('Nhập mô tả ảnh muốn tạo', 'warning');
+  const size = document.getElementById('img-size').value;
+  const product_id = document.getElementById('img-product').value || null;
+
+  document.getElementById('img-result').classList.add('hidden');
+  showLoading('img-loading');
+  try {
+    const result = await api('/api/media/generate-image', {
+      method: 'POST',
+      body: JSON.stringify({ description, size, product_id: product_id ? +product_id : null }),
+    });
+    const el = document.getElementById('img-result');
+    el.classList.remove('hidden');
+    el.innerHTML = `
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <i class="fa fa-image text-pink-500"></i>
+          <h3 class="font-semibold text-gray-700">Ảnh đã tạo — gpt-image-1</h3>
+          <span class="agent-badge bg-pink-100 text-pink-700 ml-auto">${size}</span>
+        </div>
+        <img src="${result.image_url}" alt="generated" class="w-full rounded-xl shadow mb-3 max-h-96 object-contain bg-gray-50">
+        ${result.revised_prompt ? `
+        <div class="p-3 bg-gray-50 rounded-lg">
+          <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Revised Prompt (AI)</p>
+          <p class="text-xs text-gray-600">${result.revised_prompt}</p>
+        </div>` : ''}
+        <div class="flex gap-2 mt-3">
+          <a href="${result.image_url}" download="zalopay-image.png" target="_blank"
+            class="flex-1 py-2 text-center bg-pink-50 text-pink-600 rounded-lg text-xs font-medium hover:bg-pink-100">
+            <i class="fa fa-download mr-1"></i> Tải ảnh
+          </a>
+          <button onclick="navigator.clipboard?.writeText('${result.image_url}')" class="flex-1 py-2 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium hover:bg-gray-200">
+            <i class="fa fa-copy mr-1"></i> Copy URL
+          </button>
+        </div>
+      </div>`;
+    showToast('Ảnh đã được tạo thành công!');
+    loadMedia();
+  } catch (e) {
+    showToast(e.message || 'Lỗi tạo ảnh. Kiểm tra IMAGE_API_KEY', 'error');
+  } finally {
+    hideLoading('img-loading');
+  }
+}
+
+// ─── Media Generation ─────────────────────────────────────────────────────────
+async function populateMediaSelects() {
+  const products = await api('/api/products');
+  ['media-product', 'persona-product', 'img-product'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const hasBlank = id === 'img-product';
+    el.innerHTML = (hasBlank ? '<option value="">— Không gắn sản phẩm —</option>' : '') +
+      products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  });
+  loadMedia();
+}
+
+async function populatePersonaSelects() {
+  const [products, affiliates] = await Promise.all([api('/api/products'), api('/api/affiliates')]);
+  const pp = document.getElementById('persona-product');
+  if (pp) pp.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  const pa = document.getElementById('persona-affiliate');
+  if (pa) pa.innerHTML = affiliates.map(a => `<option value="${a.id}">${a.name} (${a.demographics})</option>`).join('');
+}
+
+async function loadMedia() {
+  const media = await api('/api/media');
+  const grid = document.getElementById('media-grid');
+  grid.innerHTML = media.slice(0, 12).map(m => `
+    <div class="border rounded-xl p-3 hover:border-blue-300 transition">
+      <div class="flex items-center justify-between mb-2">
+        <span class="text-xs font-medium text-purple-600 bg-purple-50 px-2 py-0.5 rounded">${m.platform} · ${m.content_type}</span>
+        ${m.personalized ? '<span class="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded">Personalized</span>' : ''}
+      </div>
+      <p class="text-sm font-semibold text-gray-800 mb-1">${m.title || ''}</p>
+      <p class="text-xs text-gray-500 line-clamp-2">${m.body || ''}</p>
+      ${m.hashtags ? `<p class="text-xs text-blue-400 mt-1">${m.hashtags}</p>` : ''}
+    </div>
+  `).join('') || '<p class="text-gray-400 text-sm text-center py-4">Chưa có nội dung nào</p>';
+}
+
+async function generateMedia(personalize = false) {
+  const product_id = document.getElementById('media-product').value;
+  const platform = document.getElementById('media-platform').value;
+  const content_type = document.getElementById('media-type').value;
+  if (!product_id) return showToast('Chọn sản phẩm', 'warning');
+
+  showLoading('media-loading');
+  document.getElementById('media-result').classList.add('hidden');
+  try {
+    const result = await api('/api/media/generate', {
+      method: 'POST',
+      body: JSON.stringify({ product_id: +product_id, platform, content_type, personalize }),
+    });
+    renderMediaResult([result]);
+    loadMedia();
+    showToast('Nội dung AI đã được tạo!');
+  } finally {
+    hideLoading('media-loading');
+  }
+}
+
+async function generateABTest() {
+  const product_id = document.getElementById('media-product').value;
+  const platform = document.getElementById('media-platform').value;
+  if (!product_id) return showToast('Chọn sản phẩm', 'warning');
+
+  showLoading('media-loading');
+  document.getElementById('media-result').classList.add('hidden');
+  try {
+    const result = await api('/api/media/ab-test', {
+      method: 'POST',
+      body: JSON.stringify({ product_id: +product_id, platform }),
+    });
+    renderMediaResult(result.variants, result.recommended_variant);
+    loadMedia();
+    showToast(`A/B Test tạo 3 variants! Recommended: Variant ${result.recommended_variant || 'A'}`);
+  } finally {
+    hideLoading('media-loading');
+  }
+}
+
+function renderMediaResult(variants, recommended = null) {
+  const el = document.getElementById('media-result');
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="grid grid-cols-${Math.min(variants.length, 3)} gap-4 mb-4">
+      ${variants.map(v => `
+        <div class="card p-4 ${v.variant === recommended ? 'ring-2 ring-blue-500' : ''}">
+          ${v.variant ? `<div class="flex items-center justify-between mb-3">
+            <span class="font-bold text-blue-600 text-lg">Variant ${v.variant}</span>
+            ${v.variant === recommended ? '<span class="agent-badge bg-green-100 text-green-700">Recommended</span>' : ''}
+            ${v.performance_score ? `<span class="text-xs text-gray-400">Score: ${v.performance_score?.toFixed(0)}</span>` : ''}
+          </div>` : ''}
+          <div class="space-y-2">
+            <div>
+              <span class="text-xs font-semibold text-gray-500 uppercase">Title</span>
+              <p class="text-sm font-semibold text-gray-800 mt-0.5">${v.title || ''}</p>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-gray-500 uppercase">Body</span>
+              <p class="text-sm text-gray-600 mt-0.5">${v.body || ''}</p>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-gray-500 uppercase">CTA</span>
+              <span class="inline-block mt-0.5 px-3 py-1 bg-blue-600 text-white text-xs rounded-full">${v.call_to_action || ''}</span>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-gray-500 uppercase">Hashtags</span>
+              <p class="text-xs text-blue-500 mt-0.5">${v.hashtags || ''}</p>
+            </div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ─── Personalization ──────────────────────────────────────────────────────────
+async function generatePersonalized() {
+  const product_id = document.getElementById('persona-product').value;
+  const affiliate_id = document.getElementById('persona-affiliate').value;
+  const platform = document.getElementById('persona-platform').value;
+  if (!product_id || !affiliate_id) return showToast('Chọn sản phẩm và affiliate', 'warning');
+
+  showLoading('persona-loading');
+  document.getElementById('persona-result').classList.add('hidden');
+  try {
+    const result = await api('/api/media/generate', {
+      method: 'POST',
+      body: JSON.stringify({ product_id: +product_id, affiliate_id: +affiliate_id, platform, content_type: 'post', personalize: true }),
+    });
+    const el = document.getElementById('persona-result');
+    el.classList.remove('hidden');
+    el.innerHTML = `
+      <div class="card p-5">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="w-7 h-7 rounded-full bg-green-100 text-green-600 text-sm flex items-center justify-center font-bold">2</span>
+          <h3 class="font-semibold text-gray-700">Personalized Content</h3>
+          <span class="agent-badge bg-green-100 text-green-700 ml-auto">AI Personalized</span>
+        </div>
+        <div class="grid grid-cols-2 gap-6">
+          <div class="space-y-3">
+            <div>
+              <span class="text-xs font-semibold text-gray-500 uppercase">Title</span>
+              <p class="text-sm font-semibold text-gray-800 mt-1">${result.title || ''}</p>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-gray-500 uppercase">Body</span>
+              <p class="text-sm text-gray-600 mt-1">${result.body || ''}</p>
+            </div>
+            <div>
+              <span class="text-xs font-semibold text-gray-500 uppercase">Call to Action</span>
+              <span class="inline-block mt-1 px-4 py-1.5 gradient-bg text-white text-sm rounded-full">${result.call_to_action || ''}</span>
+            </div>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <span class="text-xs font-semibold text-gray-500 uppercase">Hashtags</span>
+              <p class="text-sm text-blue-500 mt-1">${result.hashtags || ''}</p>
+            </div>
+            ${result.personalization_notes ? `
+            <div class="p-3 bg-green-50 rounded-lg border border-green-100">
+              <span class="text-xs font-semibold text-green-700 uppercase">Personalization Notes</span>
+              <p class="text-xs text-green-600 mt-1">${result.personalization_notes}</p>
+            </div>` : ''}
+            <div class="p-3 bg-blue-50 rounded-lg border border-blue-100">
+              <span class="text-xs font-semibold text-blue-700 uppercase">AI Score</span>
+              <div class="flex items-center gap-2 mt-1">
+                <div class="flex-1 bg-blue-200 rounded-full h-2">
+                  <div class="progress-bar bg-blue-600 h-2 rounded-full" style="width:${result.performance_score || 75}%"></div>
+                </div>
+                <span class="text-xs font-semibold text-blue-700">${(result.performance_score || 75).toFixed(0)}/100</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    showToast('Nội dung đã được cá nhân hóa!');
+  } finally {
+    hideLoading('persona-loading');
+  }
+}
+
+// ─── Rewards ──────────────────────────────────────────────────────────────────
+async function populateRewardSelects() {
+  const affiliates = await api('/api/affiliates');
+  ['reward-affiliate'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '<option value="">Tất cả affiliates</option>' +
+      affiliates.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+  });
+  loadRewards();
+}
+
+async function loadRewards() {
+  const rewards = await api('/api/rewards');
+  const tbody = document.getElementById('rewards-tbody');
+  tbody.innerHTML = rewards.map(r => `
+    <tr class="border-t hover:bg-gray-50 text-sm">
+      <td class="px-4 py-3 font-medium text-gray-800">${r.affiliate_name || '—'}</td>
+      <td class="px-4 py-3 text-right font-semibold text-green-600">${fmtVND(r.amount)}</td>
+      <td class="px-4 py-3 text-center"><span class="agent-badge bg-blue-50 text-blue-600">${r.reward_type}</span></td>
+      <td class="px-4 py-3 text-center">
+        <span class="agent-badge ${r.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}">
+          ${r.status === 'paid' ? '<i class="fa fa-check mr-1"></i>' : ''}${r.status}
+        </span>
+      </td>
+      <td class="px-4 py-3 text-center">
+        ${r.status !== 'paid' ? `<button onclick="payReward(${r.id})" class="text-xs px-3 py-1 bg-green-600 text-white rounded-lg hover:bg-green-700">Pay Now</button>` : '—'}
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" class="px-4 py-8 text-center text-gray-400 text-sm">Chưa có rewards nào</td></tr>';
+}
+
+async function calculateRewards() {
+  const affiliate_id = document.getElementById('reward-affiliate').value;
+  const body = affiliate_id ? { affiliate_id: +affiliate_id } : {};
+  const result = await api('/api/rewards/calculate', { method: 'POST', body: JSON.stringify(body) });
+
+  const el = document.getElementById('rewards-result');
+  if (affiliate_id && result.total_reward !== undefined) {
+    el.classList.remove('hidden');
+    el.innerHTML = `
+      <div class="card p-5 mb-4 border-l-4 border-yellow-400">
+        <h3 class="font-semibold text-gray-700 mb-4 flex items-center gap-2">
+          <i class="fa fa-calculator text-yellow-500"></i> Kết quả tính thưởng
+        </h3>
+        <div class="grid grid-cols-3 gap-4">
+          <div class="text-center p-3 bg-blue-50 rounded-xl">
+            <div class="text-2xl font-bold text-blue-600">${result.conversion_count}</div>
+            <div class="text-xs text-gray-500 mt-1">Conversions</div>
+          </div>
+          <div class="text-center p-3 bg-green-50 rounded-xl">
+            <div class="text-xl font-bold text-green-600">${fmtVND(result.base_commission)}</div>
+            <div class="text-xs text-gray-500 mt-1">Base Commission</div>
+          </div>
+          <div class="text-center p-3 bg-yellow-50 rounded-xl">
+            <div class="text-xl font-bold text-yellow-600">${fmtVND(result.total_reward)}</div>
+            <div class="text-xs text-gray-500 mt-1">Total Reward</div>
+          </div>
+        </div>
+        ${result.bonuses_earned?.length ? `
+        <div class="mt-3 p-3 bg-orange-50 rounded-lg">
+          <p class="text-xs font-semibold text-orange-700">🎉 Bonus Earned: ${result.bonuses_earned.map(b => `${b.label} (+${b.pct}%)`).join(', ')}</p>
+        </div>` : ''}
+      </div>
+    `;
+  }
+  showToast(affiliate_id ? `Reward tính xong: ${fmtVND(result.total_reward)}` : `Đã xử lý ${result.processed || 0} rewards`);
+  loadRewards();
+}
+
+async function generateReport() {
+  const affiliate_id = document.getElementById('reward-affiliate').value;
+  if (!affiliate_id) return showToast('Chọn affiliate để tạo báo cáo', 'warning');
+
+  const result = await api(`/api/rewards/report/${affiliate_id}`);
+  const el = document.getElementById('rewards-result');
+  el.classList.remove('hidden');
+  el.innerHTML = `
+    <div class="card p-5 mb-4">
+      <h3 class="font-semibold text-gray-700 mb-3 flex items-center gap-2">
+        <i class="fa fa-robot text-blue-500"></i> AI Performance Report
+      </h3>
+      <div class="p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-gray-700 leading-relaxed mb-4">
+        ${result.ai_report}
+      </div>
+      <div class="grid grid-cols-4 gap-3">
+        <div class="text-center p-3 bg-gray-50 rounded-xl">
+          <div class="text-xl font-bold text-gray-700">${result.metrics?.total_clicks || 0}</div>
+          <div class="text-xs text-gray-400 mt-1">Clicks</div>
+        </div>
+        <div class="text-center p-3 bg-gray-50 rounded-xl">
+          <div class="text-xl font-bold text-blue-600">${result.metrics?.total_conversions || 0}</div>
+          <div class="text-xs text-gray-400 mt-1">Conversions</div>
+        </div>
+        <div class="text-center p-3 bg-gray-50 rounded-xl">
+          <div class="text-xl font-bold text-green-600">${fmtPct(result.metrics?.conversion_rate || 0)}</div>
+          <div class="text-xs text-gray-400 mt-1">CVR</div>
+        </div>
+        <div class="text-center p-3 bg-gray-50 rounded-xl">
+          <div class="text-xl font-bold text-yellow-600">${fmtVND(result.rewards?.total_reward || 0)}</div>
+          <div class="text-xs text-gray-400 mt-1">Reward</div>
+        </div>
+      </div>
+    </div>
+  `;
+  showToast('Báo cáo AI đã được tạo!');
+}
+
+async function payReward(id) {
+  await api(`/api/rewards/${id}/pay`, { method: 'POST' });
+  showToast('Đã thanh toán reward!');
+  loadRewards();
+}
+
+// ─── Analytics ────────────────────────────────────────────────────────────────
+async function loadAnalytics() {
+  try {
+    const [trend, rev, leaderboard] = await Promise.all([
+      api('/api/analytics/clicks-over-time'),
+      api('/api/analytics/revenue-by-product'),
+      api('/api/leaderboard'),
+    ]);
+
+    destroyChart('chart-analytics-trend');
+    const ctx1 = document.getElementById('chart-analytics-trend').getContext('2d');
+    chartInstances['chart-analytics-trend'] = new Chart(ctx1, {
+      type: 'bar',
+      data: {
+        labels: trend.map(d => d.date.slice(5)),
+        datasets: [
+          { label: 'Clicks', data: trend.map(d => d.clicks), backgroundColor: 'rgba(0,104,255,.7)' },
+          { label: 'Conversions', data: trend.map(d => d.conversions), backgroundColor: 'rgba(34,197,94,.7)' },
+        ],
+      },
+      options: { scales: { y: { beginAtZero: true } }, plugins: { legend: { labels: { font: { size: 11 } } } } },
+    });
+
+    destroyChart('chart-analytics-revenue');
+    const ctx2 = document.getElementById('chart-analytics-revenue').getContext('2d');
+    chartInstances['chart-analytics-revenue'] = new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: rev.map(r => r.product.slice(0, 18)),
+        datasets: [{ label: 'Revenue (VND)', data: rev.map(r => r.revenue), backgroundColor: ['#0068ff','#00c2ff','#22c55e','#f59e0b','#8b5cf6'] }],
+      },
+      options: { indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true } } },
+    });
+
+    const lb = document.getElementById('leaderboard-table');
+    lb.innerHTML = `
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50 text-gray-500 text-xs uppercase">
+          <tr>
+            <th class="px-4 py-3 text-center">Rank</th>
+            <th class="px-4 py-3 text-left">Affiliate</th>
+            <th class="px-4 py-3 text-center">Tier</th>
+            <th class="px-4 py-3 text-right">Conversions</th>
+            <th class="px-4 py-3 text-right">Total Earnings</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${leaderboard.map(a => `
+            <tr class="border-t hover:bg-gray-50">
+              <td class="px-4 py-3 text-center">
+                ${a.rank <= 3 ? ['🥇','🥈','🥉'][a.rank-1] : `<span class="text-gray-500">#${a.rank}</span>`}
+              </td>
+              <td class="px-4 py-3">
+                <div class="font-medium text-gray-800">${a.name}</div>
+                <div class="text-xs text-gray-400">@${a.username}</div>
+              </td>
+              <td class="px-4 py-3 text-center">${tierBadge(a.tier)}</td>
+              <td class="px-4 py-3 text-right font-medium">${fmt(a.total_conversions)}</td>
+              <td class="px-4 py-3 text-right font-semibold text-green-600">${fmtVND(a.total_earnings)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
+  } catch {}
+}
+
+// ─── Simulate Traffic ─────────────────────────────────────────────────────────
+async function simulateTraffic() {
+  const links = await api('/api/links');
+  if (!links.length) return showToast('Tạo affiliate links trước', 'warning');
+  const result = await api('/api/simulate-traffic', { method: 'POST', body: JSON.stringify({ count: 20 }) });
+  showToast(`Simulated: ${result.stats.clicks} clicks, ${result.stats.conversions} conversions`);
+  const tab = tabs.find(t => !document.getElementById(`tab-${t}`)?.classList.contains('hidden'));
+  if (tab) showTab(tab);
+}
+
+// ─── Auth + Role UI ───────────────────────────────────────────────────────────
+let currentUser = null;
+
+async function initAuth() {
+  try {
+    const res = await fetch('/api/auth/me');
+    if (!res.ok) { window.location.href = '/login'; return; }
+    currentUser = await res.json();
+    if (!currentUser.authenticated) { window.location.href = '/login'; return; }
+    applyRoleUI(currentUser);
+  } catch {
+    window.location.href = '/login';
+  }
+}
+
+function applyRoleUI(user) {
+  // User info in header
+  const initial = (user.username || 'U')[0].toUpperCase();
+  document.getElementById('user-avatar').textContent = initial;
+  document.getElementById('user-display').textContent = user.affiliate_name || user.username;
+  document.getElementById('user-role-badge').textContent = user.role === 'admin' ? '👑 Admin' : '🤝 Affiliate';
+
+  if (user.role === 'affiliate') {
+    // Hide admin-only nav items
+    ['nav-affiliates'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.display = 'none';
+    });
+    // Hide admin-only buttons
+    document.getElementById('btn-simulate')?.style.setProperty('display', 'none');
+    // Hide add product button (will be hidden when products tab loads)
+  }
+}
+
+async function doLogout() {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  window.location.href = '/login';
+}
+
+// Override products to hide add button for affiliate
+const _origLoadProducts = typeof loadProducts === 'function' ? loadProducts : null;
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  await initAuth();
+  loadDashboard();
+  setInterval(() => {
+    const tab = tabs.find(t => !document.getElementById(`tab-${t}`)?.classList.contains('hidden'));
+    if (tab === 'dashboard') loadDashboard();
+  }, 30000);
+});
+</script>
+</body>
+</html>
