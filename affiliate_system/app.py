@@ -538,6 +538,35 @@ def generate_ab_test():
     return jsonify({"variants": saved, "recommended_variant": best}), 201
 
 
+@app.route("/api/media/<int:media_id>", methods=["PATCH"])
+@affiliate_or_admin
+def update_media(media_id):
+    media = db.session.get(MediaContent, media_id)
+    if not media:
+        return jsonify({"error": "Not found"}), 404
+    if current_user.role == "affiliate" and media.affiliate_id != current_user.affiliate_id:
+        return jsonify({"error": "Forbidden"}), 403
+    data = request.json or {}
+    for field in ["title", "body", "hashtags", "call_to_action", "affiliate_id"]:
+        if field in data:
+            setattr(media, field, data[field])
+    db.session.commit()
+    return jsonify(media.to_dict())
+
+
+@app.route("/api/media/<int:media_id>", methods=["DELETE"])
+@affiliate_or_admin
+def delete_media_item(media_id):
+    media = db.session.get(MediaContent, media_id)
+    if not media:
+        return jsonify({"error": "Not found"}), 404
+    if current_user.role == "affiliate" and media.affiliate_id != current_user.affiliate_id:
+        return jsonify({"error": "Forbidden"}), 403
+    db.session.delete(media)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
 # ─── Tracking & Conversions ───────────────────────────────────────────────────
 
 @app.route("/api/convert", methods=["POST"])

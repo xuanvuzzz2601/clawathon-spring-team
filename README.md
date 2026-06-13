@@ -8,9 +8,11 @@ A multi-agent system that automates product promotion through personalized media
 
 **Agent 1: Product Reader & Media Generator**
 - Reads product information from databases/APIs
-- Generates multiple media formats (text posts, carousels, video scripts) via LLM
-- Generates product images from text description using `gpt-image-1`
+- Generates multiple media formats (text posts, carousels, video scripts) via LLM — **VNG / ZaloPay / GreenNode content only** (competitor names blocked)
+- Generates product images from text description using `gpt-image-1` — brand name enforced as `Zalopay` (lowercase p)
 - A/B/C test variant generation with AI scoring
+- **Post editor**: generated content renders as a social post preview — inline edit (title, body, hashtags, CTA), delete, and share to Facebook / Twitter / LinkedIn / Instagram / TikTok
+- **Affiliate assignment**: admin can assign any post to an affiliate; affiliate users see only their own posts
 
 **Agent 2: Media Personalization & Assembly**
 - Customizes media based on individual affiliate profiles
@@ -123,6 +125,8 @@ docker compose up -d
 | `/api/media/generate` | POST | Login | Generate text content (AI) |
 | `/api/media/generate-image` | POST | Login | Generate image (gpt-image-1) |
 | `/api/media/ab-test` | POST | Login | Generate 3 content variants |
+| `/api/media/{id}` | PATCH | Login | Edit post (title, body, hashtags, CTA, affiliate) |
+| `/api/media/{id}` | DELETE | Login | Delete a post |
 | `/api/rewards/calculate` | POST | Login | Calculate commission |
 | `/api/rewards/{id}/pay` | POST | Admin | Mark reward as paid |
 | `/api/simulate-traffic` | POST | Admin | Demo traffic simulation |

@@ -39,28 +39,35 @@ class MediaGeneratorAgent:
             "C": "urgent and promotional with limited-time offer",
         }.get(variant, "professional")
 
-        prompt = f"""You are an expert marketing copywriter for zalopay Vietnam.
-Generate compelling {content_type} content for {platform} platform.
+        prompt = f"""Bạn là chuyên gia marketing của VNG Corporation / ZaloPay Việt Nam.
 
-Product Information:
-- Name: {product['name']}
-- Description: {product['description']}
-- Price: {product['price']:,.0f} VND
-- Category: {product['category']}
-- Commission Rate: {product['commission_rate']}%
+QUY TẮC BẮT BUỘC (phải tuân thủ tuyệt đối):
+1. CHỈ tạo nội dung quảng bá cho sản phẩm/dịch vụ thuộc hệ sinh thái VNG, Zalopay hoặc GreenNode.
+2. TUYỆT ĐỐI KHÔNG đề cập bất kỳ tên đối thủ nào: MoMo, VNPay, ShopeePay, Moca, VNPT Pay, Viettel Pay, hay bất kỳ ví điện tử/fintech/ngân hàng nào khác.
+3. KHÔNG so sánh với đối thủ, kể cả gián tiếp.
+4. Mọi nội dung phải gắn với thương hiệu Zalopay hoặc VNG.
+5. Nếu mô tả sản phẩm không rõ ràng, hãy kết nối nó với hệ sinh thái Zalopay.
 
-Style: {variant_style}
+Tạo nội dung {content_type} cho nền tảng {platform}.
+Phong cách: {variant_style}
 
-Return a JSON object with exactly these fields:
+Thông tin sản phẩm:
+- Tên: {product['name']}
+- Mô tả: {product['description']}
+- Giá: {product['price']:,.0f} VND
+- Danh mục: {product['category']}
+- Hoa hồng: {product['commission_rate']}%
+
+Trả về JSON với đúng các trường sau:
 {{
-  "title": "catchy headline (max 80 chars)",
-  "body": "main content text (150-300 chars for social, adapt for platform)",
-  "hashtags": "5-8 relevant hashtags as space-separated string",
-  "call_to_action": "action button text (max 30 chars)",
-  "key_benefits": ["benefit 1", "benefit 2", "benefit 3"]
+  "title": "tiêu đề hấp dẫn (tối đa 80 ký tự)",
+  "body": "nội dung chính (150-300 ký tự, phù hợp {platform})",
+  "hashtags": "5-8 hashtag liên quan cách nhau bằng khoảng trắng, bắt đầu bằng #zalopay",
+  "call_to_action": "văn bản nút hành động (tối đa 30 ký tự)",
+  "key_benefits": ["lợi ích 1", "lợi ích 2", "lợi ích 3"]
 }}
 
-Respond in Vietnamese. Return ONLY the JSON, no markdown."""
+Trả lời bằng tiếng Việt. Chỉ trả về JSON, không có markdown."""
 
         try:
             response = self.client.chat.completions.create(
@@ -90,13 +97,21 @@ Respond in Vietnamese. Return ONLY the JSON, no markdown."""
 
         # If product info is provided, build a richer English prompt via LLM
         if product:
-            enhance_prompt = f"""Translate this Vietnamese product description into a vivid English image generation prompt.
+            enhance_prompt = f"""You are a marketing designer for Zalopay / VNG Vietnam.
+
+STRICT RULES:
+- The image must represent Zalopay or VNG branding ONLY.
+- NEVER include logos, names, or visual references to competitors (MoMo, VNPay, ShopeePay, etc.).
+- Use ZaloPay brand colors (blue #1A73E8, purple accents) when relevant.
+- If the brand name appears as text in the image, it MUST be spelled "Zalopay" (lowercase 'p') — NEVER "ZaloPay" (uppercase 'P' is forbidden).
+
+Translate this Vietnamese description into a detailed English image generation prompt:
 Product: {product.get('name', '')}
 User description: {description}
 Category: {product.get('category', '')}
 
-Write a detailed English prompt for generating a professional marketing image.
-Focus on visual elements, style, mood, and composition. Max 200 words.
+Write a detailed English prompt for a professional marketing image.
+Focus on: visual elements, style, mood, composition, ZaloPay branding. Max 200 words.
 Return ONLY the prompt text, no explanation."""
             try:
                 resp = self.client.chat.completions.create(

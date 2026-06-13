@@ -325,10 +325,24 @@
             <div class="card p-5">
               <h3 class="font-semibold text-gray-700 mb-1 flex items-center gap-2">
                 <span class="w-6 h-6 rounded-full bg-purple-100 text-purple-600 text-xs flex items-center justify-center font-bold">1</span>
-                Agent 1: Media Generator
+                Tạo bài viết mới
               </h3>
-              <p class="text-xs text-gray-400 mb-4">Tạo nội dung marketing bằng AI</p>
+              <p class="text-xs text-gray-400 mb-3">Chọn loại nội dung muốn tạo</p>
+
+              <!-- Toggle selector -->
+              <div class="flex gap-2 mb-4">
+                <button id="toggle-content" onclick="toggleGenerator('content')"
+                  class="flex-1 py-2 rounded-lg border-2 border-purple-400 bg-purple-50 text-purple-700 text-sm font-medium flex items-center justify-center gap-1.5 transition-all">
+                  <i class="fa fa-wand-magic-sparkles text-xs"></i> Nội dung
+                </button>
+                <button id="toggle-image" onclick="toggleGenerator('image')"
+                  class="flex-1 py-2 rounded-lg border-2 border-gray-200 bg-white text-gray-400 text-sm font-medium flex items-center justify-center gap-1.5 transition-all">
+                  <i class="fa fa-image text-xs"></i> Hình ảnh
+                </button>
+              </div>
+
               <div class="space-y-3">
+                <!-- Shared fields -->
                 <div>
                   <label class="block text-xs font-medium text-gray-600 mb-1">Sản phẩm</label>
                   <select id="media-product" class="w-full border rounded-lg px-3 py-2 text-sm"></select>
@@ -343,57 +357,40 @@
                     <option value="twitter">Twitter/X</option>
                   </select>
                 </div>
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">Content Type</label>
-                  <select id="media-type" class="w-full border rounded-lg px-3 py-2 text-sm">
-                    <option value="post">Post</option>
-                    <option value="story">Story</option>
-                    <option value="carousel">Carousel</option>
-                    <option value="video_script">Video Script</option>
-                    <option value="banner">Banner</option>
-                  </select>
-                </div>
-                <button onclick="generateMedia(false)" class="w-full py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2">
-                  <i class="fa fa-wand-magic-sparkles"></i> Generate Content
-                </button>
-                <button onclick="generateABTest()" class="w-full py-2.5 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 flex items-center justify-center gap-2">
-                  <i class="fa fa-flask"></i> A/B Test (3 variants)
-                </button>
-              </div>
-            </div>
 
-            <!-- Image Generator card -->
-            <div class="card p-5">
-              <h3 class="font-semibold text-gray-700 mb-1 flex items-center gap-2">
-                <span class="w-6 h-6 rounded-full bg-pink-100 text-pink-600 text-xs flex items-center justify-center font-bold">
-                  <i class="fa fa-image" style="font-size:9px"></i>
-                </span>
-                Image Generator
-              </h3>
-              <p class="text-xs text-gray-400 mb-3">Tạo ảnh từ mô tả bằng gpt-image-1</p>
-              <div class="space-y-3">
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">Sản phẩm (tuỳ chọn)</label>
-                  <select id="img-product" class="w-full border rounded-lg px-3 py-2 text-sm">
-                    <option value="">— Không gắn sản phẩm —</option>
-                  </select>
+                <!-- Content-specific fields -->
+                <div id="content-fields" class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Content Type</label>
+                    <select id="media-type" class="w-full border rounded-lg px-3 py-2 text-sm">
+                      <option value="post">Post</option>
+                      <option value="story">Story</option>
+                      <option value="carousel">Carousel</option>
+                      <option value="video_script">Video Script</option>
+                      <option value="banner">Banner</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">Mô tả ảnh muốn tạo</label>
-                  <textarea id="img-description" rows="3" placeholder="VD: Ảnh quảng cáo ví điện tử hiện đại, tone xanh dương, phong cách minimalist, người dùng thanh toán bằng điện thoại..."
-                    class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+
+                <!-- Image-specific fields -->
+                <div id="image-fields" class="hidden space-y-3">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Mô tả ảnh muốn tạo</label>
+                    <textarea id="img-description" rows="3" placeholder="VD: Ảnh quảng cáo ví điện tử hiện đại, tone xanh dương, phong cách minimalist..."
+                      class="w-full border rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Kích thước ảnh</label>
+                    <select id="img-size" class="w-full border rounded-lg px-3 py-2 text-sm">
+                      <option value="1024x1024">1024×1024 (vuông)</option>
+                      <option value="1536x1024">1536×1024 (ngang)</option>
+                      <option value="1024x1536">1024×1536 (dọc)</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-xs font-medium text-gray-600 mb-1">Kích thước</label>
-                  <select id="img-size" class="w-full border rounded-lg px-3 py-2 text-sm">
-                    <option value="1024x1024">1024×1024 (vuông)</option>
-                    <option value="1536x1024">1536×1024 (ngang)</option>
-                    <option value="1024x1536">1024×1536 (dọc)</option>
-                  </select>
-                </div>
-                <button onclick="generateImage()" class="w-full py-2.5 bg-pink-500 text-white rounded-lg text-sm font-medium hover:bg-pink-600 flex items-center justify-center gap-2">
-                  <i class="fa fa-image"></i> Generate Image
-                </button>
+
+                <!-- Action buttons (rendered dynamically) -->
+                <div id="action-buttons" class="space-y-2"></div>
               </div>
             </div>
           </div>
@@ -412,8 +409,37 @@
                 <p class="text-xs text-gray-400 mt-1">Có thể mất 15-30 giây</p>
               </div>
             </div>
-            <div id="img-result" class="hidden mb-4"></div>
-            <div id="media-result" class="hidden"></div>
+            <!-- Unified post preview frame -->
+            <div id="post-preview" class="hidden mb-4">
+              <div class="card overflow-hidden">
+                <!-- Post header -->
+                <div class="p-4 border-b flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">Z</div>
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-semibold text-gray-800">ZaloPay Official</p>
+                    <p class="text-xs text-gray-400" id="post-meta">Instagram · Post</p>
+                  </div>
+                  <span class="hidden text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-medium" id="post-score"></span>
+                </div>
+                <!-- Content section -->
+                <div id="post-content-section" class="hidden px-4 pt-4 pb-2">
+                  <p class="font-semibold text-gray-800 text-sm mb-2" id="post-title"></p>
+                  <p class="text-sm text-gray-600 leading-relaxed mb-2" id="post-body"></p>
+                  <p class="text-sm text-blue-500" id="post-hashtags"></p>
+                </div>
+                <!-- Image section -->
+                <div id="post-image-section" class="hidden">
+                  <div id="post-image-skeleton" class="bg-gray-100 flex items-center justify-center" style="height:200px">
+                    <i class="fa fa-image text-3xl text-gray-300 loading"></i>
+                  </div>
+                  <img id="post-image" src="" alt="generated" class="w-full object-cover hidden" style="max-height:320px">
+                </div>
+                <!-- Footer (rendered dynamically) -->
+                <div id="post-footer" class="border-t"></div>
+              </div>
+            </div>
+            <!-- A/B test variants -->
+            <div id="media-result" class="hidden mb-4"></div>
             <div class="card overflow-hidden mt-4">
               <div class="p-4 border-b"><h3 class="font-semibold text-gray-700">Content Library</h3></div>
               <div id="media-grid" class="p-4 grid grid-cols-1 gap-3 max-h-96 overflow-y-auto"></div>
@@ -1054,48 +1080,412 @@ function copyToClipboard(text) {
   navigator.clipboard?.writeText(text).catch(() => {});
 }
 
+// ─── Generator Toggle ────────────────────────────────────────────────────────
+const generatorState = { content: true, image: false };
+
+function toggleGenerator(type) {
+  generatorState[type] = !generatorState[type];
+  if (!generatorState.content && !generatorState.image) {
+    generatorState[type] = true;
+    return;
+  }
+  updateGeneratorUI();
+}
+
+function updateGeneratorUI() {
+  const { content, image } = generatorState;
+  const contentBtn = document.getElementById('toggle-content');
+  const imageBtn = document.getElementById('toggle-image');
+
+  contentBtn.className = content
+    ? 'flex-1 py-2 rounded-lg border-2 border-purple-400 bg-purple-50 text-purple-700 text-sm font-medium flex items-center justify-center gap-1.5 transition-all'
+    : 'flex-1 py-2 rounded-lg border-2 border-gray-200 bg-white text-gray-400 text-sm font-medium flex items-center justify-center gap-1.5 transition-all';
+
+  imageBtn.className = image
+    ? 'flex-1 py-2 rounded-lg border-2 border-pink-400 bg-pink-50 text-pink-700 text-sm font-medium flex items-center justify-center gap-1.5 transition-all'
+    : 'flex-1 py-2 rounded-lg border-2 border-gray-200 bg-white text-gray-400 text-sm font-medium flex items-center justify-center gap-1.5 transition-all';
+
+  document.getElementById('content-fields').classList.toggle('hidden', !content);
+  document.getElementById('image-fields').classList.toggle('hidden', !image);
+
+  const btns = document.getElementById('action-buttons');
+  if (content && image) {
+    btns.innerHTML = `
+      <button onclick="generateBoth()" class="w-full py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2">
+        <i class="fa fa-bolt"></i> Generate cả hai
+      </button>
+      <div class="grid grid-cols-2 gap-2">
+        <button onclick="generateMedia(false)" class="py-2 bg-purple-100 text-purple-700 rounded-lg text-xs font-medium hover:bg-purple-200 flex items-center justify-center gap-1">
+          <i class="fa fa-align-left text-xs"></i> Chỉ nội dung
+        </button>
+        <button onclick="generateImage()" class="py-2 bg-pink-100 text-pink-700 rounded-lg text-xs font-medium hover:bg-pink-200 flex items-center justify-center gap-1">
+          <i class="fa fa-image text-xs"></i> Chỉ ảnh
+        </button>
+      </div>
+      <button onclick="generateABTest()" class="w-full py-2 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium hover:bg-gray-200 flex items-center justify-center gap-2">
+        <i class="fa fa-flask"></i> A/B Test (3 variants)
+      </button>`;
+  } else if (content) {
+    btns.innerHTML = `
+      <button onclick="generateMedia(false)" class="w-full py-2.5 gradient-bg text-white rounded-lg text-sm font-medium hover:opacity-90 flex items-center justify-center gap-2">
+        <i class="fa fa-wand-magic-sparkles"></i> Generate Content
+      </button>
+      <button onclick="generateABTest()" class="w-full py-2.5 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200 flex items-center justify-center gap-2">
+        <i class="fa fa-flask"></i> A/B Test (3 variants)
+      </button>`;
+  } else {
+    btns.innerHTML = `
+      <button onclick="generateImage()" class="w-full py-2.5 bg-pink-500 text-white rounded-lg text-sm font-medium hover:bg-pink-600 flex items-center justify-center gap-2">
+        <i class="fa fa-image"></i> Generate Image
+      </button>`;
+  }
+}
+
+// ─── Post Preview State ───────────────────────────────────────────────────────
+let _postContent = null;
+let _postImage   = null;
+let _editMode    = false;
+let _affiliatesList = [];
+
+function escapeHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function resetPostPreview() {
+  _postContent = null;
+  _postImage   = null;
+  _editMode    = false;
+  document.getElementById('post-preview').classList.add('hidden');
+  document.getElementById('media-result').classList.add('hidden');
+}
+
+function renderPostPreview() {
+  const preview = document.getElementById('post-preview');
+  if (!_postContent && !_postImage) return;
+  preview.classList.remove('hidden');
+
+  const platform    = document.getElementById('media-platform').value;
+  const contentType = document.getElementById('media-type')?.value || 'post';
+  document.getElementById('post-meta').textContent = `${platform} · ${contentType}`;
+
+  const scoreEl = document.getElementById('post-score');
+  if (_postContent?.performance_score) {
+    scoreEl.textContent = `Score: ${Math.round(_postContent.performance_score)}`;
+    scoreEl.classList.remove('hidden');
+  } else {
+    scoreEl.classList.add('hidden');
+  }
+
+  // Content section
+  const contentSection = document.getElementById('post-content-section');
+  if (_postContent) {
+    document.getElementById('post-title').textContent    = _postContent.title    || '';
+    document.getElementById('post-body').textContent     = _postContent.body     || '';
+    document.getElementById('post-hashtags').textContent = _postContent.hashtags || '';
+    contentSection.classList.remove('hidden');
+  } else {
+    contentSection.classList.add('hidden');
+  }
+
+  // Image section
+  const imageSection = document.getElementById('post-image-section');
+  const imgEl   = document.getElementById('post-image');
+  const skeleton = document.getElementById('post-image-skeleton');
+  if (_postImage === null) {
+    imageSection.classList.remove('hidden');
+    skeleton.classList.remove('hidden');
+    imgEl.classList.add('hidden');
+  } else if (_postImage) {
+    imageSection.classList.remove('hidden');
+    skeleton.classList.add('hidden');
+    imgEl.classList.remove('hidden');
+    imgEl.src = _postImage.image_url;
+  } else {
+    imageSection.classList.add('hidden');
+  }
+
+  renderPostFooter();
+}
+
+function renderPostFooter() {
+  const footer = document.getElementById('post-footer');
+  if (!footer) return;
+
+  const postId       = _postContent?.id;
+  const imgUrl       = _postImage?.image_url;
+  const affiliateId  = _postContent?.affiliate_id ?? _postImage?.affiliate_id;
+  const affiliateName = _postContent?.affiliate_name ?? _postImage?.affiliate_name;
+
+  // ── Edit mode ────────────────────────────────────────────────────────────
+  if (_editMode && _postContent) {
+    footer.innerHTML = `
+      <div class="p-4 space-y-3">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Chỉnh sửa bài viết</p>
+        <div>
+          <label class="text-xs text-gray-400 mb-0.5 block">Tiêu đề</label>
+          <input id="edit-title" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" value="${escapeHtml(_postContent.title)}">
+        </div>
+        <div>
+          <label class="text-xs text-gray-400 mb-0.5 block">Nội dung</label>
+          <textarea id="edit-body" rows="4" class="w-full border rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-300">${escapeHtml(_postContent.body)}</textarea>
+        </div>
+        <div>
+          <label class="text-xs text-gray-400 mb-0.5 block">Hashtags</label>
+          <input id="edit-hashtags" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" value="${escapeHtml(_postContent.hashtags)}">
+        </div>
+        <div>
+          <label class="text-xs text-gray-400 mb-0.5 block">Call to Action</label>
+          <input id="edit-cta" class="w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-300" value="${escapeHtml(_postContent.call_to_action)}">
+        </div>
+        <div class="flex gap-2 pt-1">
+          <button onclick="savePostEdits()" class="flex-1 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 flex items-center justify-center gap-1.5">
+            <i class="fa fa-save"></i> Lưu thay đổi
+          </button>
+          <button onclick="cancelEditMode()" class="py-2 px-4 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200">Huỷ</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // ── View mode ────────────────────────────────────────────────────────────
+  // Affiliate row
+  let affiliateRow = '';
+  if (_affiliatesList.length) {
+    const opts = _affiliatesList.map(a =>
+      `<option value="${a.id}" ${a.id == affiliateId ? 'selected' : ''}>${escapeHtml(a.name)}</option>`
+    ).join('');
+    affiliateRow = `
+      <div class="flex items-center gap-2 px-4 pt-4">
+        <i class="fa fa-user text-xs text-gray-400 flex-shrink-0"></i>
+        <select id="post-affiliate-select" class="flex-1 border rounded-lg px-2 py-1.5 text-xs">
+          <option value="">— Chưa gắn affiliate —</option>${opts}
+        </select>
+        <button onclick="assignAffiliate()" class="px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-medium hover:bg-blue-100 flex-shrink-0">Gắn</button>
+      </div>`;
+  } else if (affiliateName) {
+    affiliateRow = `
+      <div class="px-4 pt-3 flex items-center gap-2">
+        <i class="fa fa-user text-xs text-gray-400"></i>
+        <span class="text-xs text-gray-500">Affiliate: <span class="font-medium text-gray-700">${escapeHtml(affiliateName)}</span></span>
+      </div>`;
+  }
+
+  // CTA button (inside post body area)
+  const ctaHtml = _postContent?.call_to_action
+    ? `<div class="px-4 pb-3"><button class="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold">${escapeHtml(_postContent.call_to_action)}</button></div>`
+    : '';
+
+  // Share dropdown
+  let shareHtml = '';
+  if (_postContent) {
+    const enc = encodeURIComponent([_postContent.title, _postContent.body, _postContent.hashtags].filter(Boolean).join('\n\n'));
+    shareHtml = `
+      <div class="relative flex-1" id="share-wrapper">
+        <button onclick="toggleShareDropdown()" class="w-full py-2 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 flex items-center justify-center gap-1.5">
+          <i class="fa fa-share-nodes"></i> Chia sẻ
+        </button>
+        <div id="share-dropdown" class="hidden absolute bottom-full mb-2 left-0 right-0 bg-white border rounded-xl shadow-xl overflow-hidden z-20 py-1 min-w-max">
+          <a href="https://www.facebook.com/sharer/sharer.php?quote=${enc}" target="_blank" rel="noopener"
+            onclick="document.getElementById('share-dropdown').classList.add('hidden')"
+            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-sm text-gray-700">
+            <i class="fa-brands fa-facebook text-blue-600 w-4 text-center"></i> Facebook
+          </a>
+          <a href="https://twitter.com/intent/tweet?text=${enc}" target="_blank" rel="noopener"
+            onclick="document.getElementById('share-dropdown').classList.add('hidden')"
+            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-sm text-gray-700">
+            <i class="fa-brands fa-x-twitter w-4 text-center"></i> Twitter / X
+          </a>
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fzalopay.vn&summary=${enc}" target="_blank" rel="noopener"
+            onclick="document.getElementById('share-dropdown').classList.add('hidden')"
+            class="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-sm text-gray-700">
+            <i class="fa-brands fa-linkedin text-blue-700 w-4 text-center"></i> LinkedIn
+          </a>
+          <button onclick="shareViaCopy('Instagram')"
+            class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-sm text-gray-700 text-left">
+            <i class="fa-brands fa-instagram text-pink-500 w-4 text-center"></i> Instagram (copy)
+          </button>
+          <button onclick="shareViaCopy('TikTok')"
+            class="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 text-sm text-gray-700 text-left">
+            <i class="fa-brands fa-tiktok w-4 text-center"></i> TikTok (copy)
+          </button>
+        </div>
+      </div>`;
+  }
+
+  footer.innerHTML = `
+    ${ctaHtml}
+    ${affiliateRow}
+    <div class="p-4 space-y-2">
+      <div class="flex gap-2">
+        ${postId && _postContent ? `<button onclick="enableEditMode()" class="flex-1 py-2 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium hover:bg-gray-200 flex items-center justify-center gap-1.5">
+          <i class="fa fa-pen text-xs"></i> Chỉnh sửa
+        </button>` : ''}
+        ${postId ? `<button onclick="deletePost(${postId})" class="py-2 px-3 bg-red-50 text-red-500 rounded-lg text-xs font-medium hover:bg-red-100 flex items-center gap-1.5">
+          <i class="fa fa-trash text-xs"></i> Xoá
+        </button>` : ''}
+        ${shareHtml}
+      </div>
+      <div class="flex gap-2">
+        ${_postContent ? `<button onclick="copyPostContent()" class="flex-1 py-2 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium hover:bg-gray-200 flex items-center justify-center gap-1.5">
+          <i class="fa fa-copy text-xs"></i> Copy nội dung
+        </button>` : ''}
+        ${imgUrl ? `<a href="${imgUrl}" download="zalopay-post.png" target="_blank"
+          class="flex-1 py-2 text-center bg-pink-50 text-pink-600 rounded-lg text-xs font-medium hover:bg-pink-100 flex items-center justify-center gap-1.5">
+          <i class="fa fa-download text-xs"></i> Tải ảnh
+        </a>` : ''}
+      </div>
+    </div>`;
+}
+
+function toggleShareDropdown() {
+  const d = document.getElementById('share-dropdown');
+  if (!d) return;
+  const willOpen = d.classList.contains('hidden');
+  d.classList.toggle('hidden');
+  if (willOpen) {
+    const close = (e) => {
+      if (!document.getElementById('share-wrapper')?.contains(e.target)) {
+        d.classList.add('hidden');
+        document.removeEventListener('click', close);
+      }
+    };
+    setTimeout(() => document.addEventListener('click', close), 0);
+  }
+}
+
+function enableEditMode() {
+  if (!_postContent) return;
+  _editMode = true;
+  renderPostFooter();
+}
+
+function cancelEditMode() {
+  _editMode = false;
+  renderPostFooter();
+}
+
+async function savePostEdits() {
+  const id = _postContent?.id;
+  if (!id) return;
+  const payload = {
+    title:          document.getElementById('edit-title')?.value.trim(),
+    body:           document.getElementById('edit-body')?.value.trim(),
+    hashtags:       document.getElementById('edit-hashtags')?.value.trim(),
+    call_to_action: document.getElementById('edit-cta')?.value.trim(),
+  };
+  try {
+    const updated = await api(`/api/media/${id}`, { method: 'PATCH', body: JSON.stringify(payload) });
+    _postContent = { ..._postContent, ...updated };
+    _editMode = false;
+    renderPostPreview();
+    showToast('Đã lưu thay đổi!');
+    loadMedia();
+  } catch (e) {
+    showToast('Lỗi lưu: ' + (e.message || ''), 'error');
+  }
+}
+
+async function deletePost(id) {
+  if (!confirm('Xoá bài viết này khỏi hệ thống?')) return;
+  try {
+    await api(`/api/media/${id}`, { method: 'DELETE' });
+    resetPostPreview();
+    showToast('Đã xoá bài viết');
+    loadMedia();
+  } catch (e) {
+    showToast('Lỗi xoá: ' + (e.message || ''), 'error');
+  }
+}
+
+function shareViaCopy(platform) {
+  document.getElementById('share-dropdown')?.classList.add('hidden');
+  copyPostContent();
+  showToast(`Đã copy! Mở app ${platform} và dán vào bài viết mới.`);
+}
+
+async function assignAffiliate() {
+  const select = document.getElementById('post-affiliate-select');
+  const affiliateId = select?.value || null;
+  const id = _postContent?.id ?? _postImage?.id;
+  if (!id) return showToast('Chưa có bài viết để gắn', 'warning');
+  try {
+    const updated = await api(`/api/media/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ affiliate_id: affiliateId ? +affiliateId : null }),
+    });
+    if (_postContent?.id === id) _postContent = { ..._postContent, ...updated };
+    if (_postImage?.id  === id) _postImage   = { ..._postImage,   ...updated };
+    renderPostFooter();
+    showToast(affiliateId ? `Đã gắn với affiliate ${updated.affiliate_name || ''}!` : 'Đã bỏ gắn affiliate');
+  } catch (e) {
+    showToast('Lỗi: ' + (e.message || ''), 'error');
+  }
+}
+
+function copyPostContent() {
+  if (!_postContent) return showToast('Không có nội dung để copy', 'warning');
+  const parts = [_postContent.title, '', _postContent.body, '', _postContent.hashtags].filter(Boolean);
+  navigator.clipboard?.writeText(parts.join('\n'));
+  showToast('Đã copy nội dung!');
+}
+
+async function generateBoth() {
+  const product_id = document.getElementById('media-product').value;
+  if (!product_id) return showToast('Chọn sản phẩm', 'warning');
+  const description = document.getElementById('img-description').value.trim();
+  if (!description) return showToast('Nhập mô tả ảnh muốn tạo', 'warning');
+  const platform = document.getElementById('media-platform').value;
+  const content_type = document.getElementById('media-type').value;
+  const size = document.getElementById('img-size').value;
+
+  resetPostPreview();
+  _postImage = null; // null = loading
+  renderPostPreview();
+  showLoading('media-loading');
+  showLoading('img-loading');
+
+  const [mediaRes, imgRes] = await Promise.allSettled([
+    api('/api/media/generate', { method: 'POST', body: JSON.stringify({ product_id: +product_id, platform, content_type, personalize: false }) }),
+    api('/api/media/generate-image', { method: 'POST', body: JSON.stringify({ description, size, product_id: +product_id }) }),
+  ]);
+
+  hideLoading('media-loading');
+  hideLoading('img-loading');
+
+  if (mediaRes.status === 'fulfilled') _postContent = mediaRes.value;
+  else showToast('Lỗi tạo nội dung: ' + mediaRes.reason?.message, 'error');
+
+  _postImage = imgRes.status === 'fulfilled' ? imgRes.value : undefined;
+  if (imgRes.status === 'rejected') showToast('Lỗi tạo ảnh: ' + imgRes.reason?.message, 'error');
+
+  renderPostPreview();
+  loadMedia();
+  if (_postContent || _postImage) showToast('Bài viết đã được tạo!');
+}
+
 // ─── Image Generation ────────────────────────────────────────────────────────
 async function generateImage() {
   const description = document.getElementById('img-description').value.trim();
   if (!description) return showToast('Nhập mô tả ảnh muốn tạo', 'warning');
   const size = document.getElementById('img-size').value;
-  const product_id = document.getElementById('img-product').value || null;
+  const product_id = document.getElementById('media-product').value || null;
 
-  document.getElementById('img-result').classList.add('hidden');
+  resetPostPreview();
+  _postImage = null; // null = loading skeleton
+  renderPostPreview();
   showLoading('img-loading');
   try {
     const result = await api('/api/media/generate-image', {
       method: 'POST',
       body: JSON.stringify({ description, size, product_id: product_id ? +product_id : null }),
     });
-    const el = document.getElementById('img-result');
-    el.classList.remove('hidden');
-    el.innerHTML = `
-      <div class="card p-5">
-        <div class="flex items-center gap-2 mb-4">
-          <i class="fa fa-image text-pink-500"></i>
-          <h3 class="font-semibold text-gray-700">Ảnh đã tạo — gpt-image-1</h3>
-          <span class="agent-badge bg-pink-100 text-pink-700 ml-auto">${size}</span>
-        </div>
-        <img src="${result.image_url}" alt="generated" class="w-full rounded-xl shadow mb-3 max-h-96 object-contain bg-gray-50">
-        ${result.revised_prompt ? `
-        <div class="p-3 bg-gray-50 rounded-lg">
-          <p class="text-xs font-semibold text-gray-500 uppercase mb-1">Revised Prompt (AI)</p>
-          <p class="text-xs text-gray-600">${result.revised_prompt}</p>
-        </div>` : ''}
-        <div class="flex gap-2 mt-3">
-          <a href="${result.image_url}" download="zalopay-image.png" target="_blank"
-            class="flex-1 py-2 text-center bg-pink-50 text-pink-600 rounded-lg text-xs font-medium hover:bg-pink-100">
-            <i class="fa fa-download mr-1"></i> Tải ảnh
-          </a>
-          <button onclick="navigator.clipboard?.writeText('${result.image_url}')" class="flex-1 py-2 bg-gray-100 text-gray-600 rounded-lg text-xs font-medium hover:bg-gray-200">
-            <i class="fa fa-copy mr-1"></i> Copy URL
-          </button>
-        </div>
-      </div>`;
+    _postImage = result;
+    renderPostPreview();
     showToast('Ảnh đã được tạo thành công!');
     loadMedia();
   } catch (e) {
+    _postImage = undefined;
+    renderPostPreview();
     showToast(e.message || 'Lỗi tạo ảnh. Kiểm tra IMAGE_API_KEY', 'error');
   } finally {
     hideLoading('img-loading');
@@ -1105,13 +1495,15 @@ async function generateImage() {
 // ─── Media Generation ─────────────────────────────────────────────────────────
 async function populateMediaSelects() {
   const products = await api('/api/products');
-  ['media-product', 'persona-product', 'img-product'].forEach(id => {
+  ['media-product', 'persona-product'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
-    const hasBlank = id === 'img-product';
-    el.innerHTML = (hasBlank ? '<option value="">— Không gắn sản phẩm —</option>' : '') +
-      products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    el.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
   });
+  if (currentUser?.role === 'admin') {
+    try { _affiliatesList = await api('/api/affiliates'); } catch (_) {}
+  }
+  updateGeneratorUI();
   loadMedia();
 }
 
@@ -1145,14 +1537,15 @@ async function generateMedia(personalize = false) {
   const content_type = document.getElementById('media-type').value;
   if (!product_id) return showToast('Chọn sản phẩm', 'warning');
 
+  resetPostPreview();
   showLoading('media-loading');
-  document.getElementById('media-result').classList.add('hidden');
   try {
     const result = await api('/api/media/generate', {
       method: 'POST',
       body: JSON.stringify({ product_id: +product_id, platform, content_type, personalize }),
     });
-    renderMediaResult([result]);
+    _postContent = result;
+    renderPostPreview();
     loadMedia();
     showToast('Nội dung AI đã được tạo!');
   } finally {
@@ -1165,8 +1558,8 @@ async function generateABTest() {
   const platform = document.getElementById('media-platform').value;
   if (!product_id) return showToast('Chọn sản phẩm', 'warning');
 
+  resetPostPreview();
   showLoading('media-loading');
-  document.getElementById('media-result').classList.add('hidden');
   try {
     const result = await api('/api/media/ab-test', {
       method: 'POST',
